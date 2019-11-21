@@ -41,27 +41,27 @@ return launch()
         const url = characterLinks[121].url;
         const name = characterLinks[121].name;
 
-        return openNewPage(browser)
-            .then(goto(url))
-            .then(({page}) => {
-                return page.$$eval('.pi-item', characterInfo => {
-                    const dato = characterInfo.reduce((info, item) => {
-                        const label = $(item).find('.pi-data-label').text();
-                        const imageField = $(item).find('.pi-data-value').find('a').find('img');
-                        const value = imageField.length > 0 ? imageField.attr('alt')
-                            : $(item).find('.pi-data-value').text();
+        characterLinks.reduce((promise, link) => {
+            promise
+                .then(() => {
+                    return openNewPage(browser)
+                        .then(goto(url))
+                        .then(({page}) => {
+                            return page.$$eval('.pi-item', characterInfo =>
+                                characterInfo.reduce((info, item) => {
+                                    const label = $(item).find('.pi-data-label').text();
+                                    const imageField = $(item).find('.pi-data-value').find('a').find('img');
+                                    const value = imageField.length > 0 ? imageField.attr('alt')
+                                        : $(item).find('.pi-data-value').text();
 
-                        return {...info, [label]:value}
-                    }, {});
-                    return dato
+                                    return !label ? info : {...info, [label.toLowerCase().replace(/\s/g, '_')]:value}
+                                }, {}))
+                        })
                 })
-            })
-            .then(pepe => {
-                console.log(pepe)
-            })
-        /*characterLinks.reduce((promise, link) => {
-            promise.then()
-        }, Promise.resolve())*/
+                .then(() => {
+                    
+                })
+        }, Promise.resolve())
     })
     .catch(e => {
         console.log(e)
